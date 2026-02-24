@@ -24,14 +24,18 @@ function parseDuration(iso: string): number {
     parseInt(match[3] || "0");
 }
 
-// Filter out Shorts (< 60s) and old videos (> 12 months)
+// Filter out Shorts and old videos (> 12 months)
 export function filterVideos(videos: VideoData[]): VideoData[] {
   const twelveMonthsAgo = new Date();
   twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
 
   return videos.filter((v) => {
-    // Filter Shorts
-    if (v.duration && parseDuration(v.duration) < 60) return false;
+    // Filter Shorts by duration (≤ 60s)
+    if (v.duration && parseDuration(v.duration) <= 60) return false;
+    // Filter Shorts by title
+    if (/\#shorts/i.test(v.title)) return false;
+    // Filter Shorts by missing thumbnail (Shorts don't get maxres/high thumbs)
+    if (!v.thumbnail) return false;
     // Filter old videos
     if (v.publishedAt && new Date(v.publishedAt) < twelveMonthsAgo) return false;
     return true;
