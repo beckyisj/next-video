@@ -1,62 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200">
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="teal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0d9488"/>
-      <stop offset="100%" style="stop-color:#14b8a6"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fafaf9"/>
+      <stop offset="100%" stop-color="#f0efed"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="topBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="50%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#2dd4bf"/>
     </linearGradient>
   </defs>
 
   <!-- Background -->
-  <rect width="1200" height="1200" fill="#fafaf9"/>
+  <rect width="1200" height="1200" fill="url(#bg)"/>
 
-  <!-- Top accent bar -->
-  <rect width="1200" height="6" fill="url(#teal-grad)"/>
+  <!-- Top accent bar (at crop boundary: y=285) -->
+  <rect y="285" width="1200" height="5" fill="url(#topBar)"/>
 
-  <!-- Subtle gradient wash -->
-  <rect width="1200" height="400" fill="url(#teal-grad)" opacity="0.04"/>
+  <!-- Subtle teal glow -->
+  <ellipse cx="600" cy="285" rx="500" ry="250" fill="rgba(13, 148, 136, 0.04)"/>
 
-  <!-- Logo area (y=320) -->
-  <rect x="80" y="340" width="52" height="52" rx="13" fill="url(#teal-grad)"/>
-  <polygon points="97,353 111,366 97,379" fill="white"/>
-  <polygon points="111,353 125,366 111,379" fill="white"/>
+  <!-- Content centered in y=285..915 (630px crop zone) -->
 
-  <text x="148" y="375" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="600" fill="#78716c">YouTube Producer</text>
+  <!-- Logo icon + text inline -->
+  <rect x="434" y="380" width="52" height="52" rx="13" fill="url(#teal)"/>
+  <polygon points="451,393 464,406 451,419" fill="white"/>
+  <polygon points="464,393 477,406 464,419" fill="white"/>
+  <text x="500" y="418" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="30" font-weight="600" fill="#1c1917" letter-spacing="-0.5">YouTube Producer</text>
 
-  <!-- Title (y=480) -->
-  <text x="80" y="500" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="700" fill="#1c1917" letter-spacing="-2">Next Video</text>
+  <!-- Main title -->
+  <text x="600" y="530" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="56" font-weight="700" fill="#1c1917" letter-spacing="-2">Next Video</text>
 
   <!-- Subtitle -->
-  <text x="80" y="560" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#78716c">Find your next video idea backed by data.</text>
-  <text x="80" y="600" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#78716c">See what works for channels one step ahead.</text>
+  <text x="600" y="590" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="22" fill="#78716c">Find your next video idea backed by data.</text>
+  <text x="600" y="625" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="22" fill="#78716c">See what works for channels one step ahead.</text>
 
-  <!-- Mockup: idea cards -->
-  <rect x="80" y="670" width="480" height="80" rx="12" fill="white" stroke="#e7e5e4" stroke-width="1"/>
-  <circle cx="120" cy="710" r="16" fill="#0d9488" opacity="0.08"/>
-  <text x="120" y="716" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#0d9488" text-anchor="middle">1</text>
-  <rect x="150" y="696" width="280" height="12" rx="6" fill="#1c1917" opacity="0.7"/>
-  <rect x="150" y="716" width="200" height="10" rx="5" fill="#a8a29e" opacity="0.5"/>
+  <!-- Three feature pills -->
+  <rect x="150" y="690" width="260" height="44" rx="22" fill="rgba(13, 148, 136, 0.08)" stroke="#0d9488" stroke-width="1" stroke-opacity="0.2"/>
+  <text x="280" y="718" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="16" font-weight="500" fill="#0d9488">Peer Channels</text>
 
-  <rect x="80" y="762" width="480" height="80" rx="12" fill="white" stroke="#e7e5e4" stroke-width="1"/>
-  <circle cx="120" cy="802" r="16" fill="#0d9488" opacity="0.08"/>
-  <text x="120" y="808" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#0d9488" text-anchor="middle">2</text>
-  <rect x="150" y="788" width="320" height="12" rx="6" fill="#1c1917" opacity="0.7"/>
-  <rect x="150" y="808" width="180" height="10" rx="5" fill="#a8a29e" opacity="0.5"/>
+  <rect x="470" y="690" width="260" height="44" rx="22" fill="rgba(13, 148, 136, 0.08)" stroke="#0d9488" stroke-width="1" stroke-opacity="0.2"/>
+  <text x="600" y="718" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="16" font-weight="500" fill="#0d9488">Outlier Detection</text>
 
-  <rect x="80" y="854" width="480" height="80" rx="12" fill="white" stroke="#e7e5e4" stroke-width="1"/>
-  <circle cx="120" cy="894" r="16" fill="#0d9488" opacity="0.08"/>
-  <text x="120" y="900" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#0d9488" text-anchor="middle">3</text>
-  <rect x="150" y="880" width="260" height="12" rx="6" fill="#1c1917" opacity="0.7"/>
-  <rect x="150" y="900" width="240" height="10" rx="5" fill="#a8a29e" opacity="0.5"/>
-
-  <!-- Mockup: stats on right side -->
-  <rect x="620" y="670" width="500" height="264" rx="12" fill="white" stroke="#e7e5e4" stroke-width="1"/>
-  <text x="660" y="710" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#a8a29e">PEER CHANNELS</text>
-  <text x="660" y="740" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#1c1917">8</text>
-  <text x="660" y="790" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#a8a29e">OUTLIER VIDEOS</text>
-  <text x="660" y="820" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#1c1917">12</text>
-  <text x="660" y="870" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#a8a29e">SUBSCRIBER RANGE</text>
-  <text x="660" y="900" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#0d9488">10K–50K</text>
+  <rect x="790" y="690" width="260" height="44" rx="22" fill="rgba(13, 148, 136, 0.08)" stroke="#0d9488" stroke-width="1" stroke-opacity="0.2"/>
+  <text x="920" y="718" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="16" font-weight="500" fill="#0d9488">AI-Powered Ideas</text>
 
   <!-- Domain -->
-  <text x="600" y="1100" font-family="system-ui, sans-serif" font-size="20" fill="#a8a29e" text-anchor="middle">nextvideo.youtubeproducer.app</text>
+  <text x="600" y="810" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="18" fill="#a8a29e">nextvideo.youtubeproducer.app</text>
 </svg>
