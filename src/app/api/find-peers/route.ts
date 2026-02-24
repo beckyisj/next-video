@@ -56,13 +56,23 @@ export async function POST(request: NextRequest) {
     const { min, max } = getPeerRange(subscriberCount);
 
     // Check cache for peers
-    const peerCacheKey = `peers:${niche.sort().join(",")}:${min}-${max}`;
+    const sortedNiche = [...niche].sort();
+    const peerCacheKey = `peers:${sortedNiche.join(",")}:${min}-${max}`;
     let peers = await getCached<ChannelInfo[]>(peerCacheKey, "peers");
 
     if (!peers) {
       peers = await searchChannels(niche, min, max, 20);
       // Filter out the source channel
       peers = peers.filter((p) => p.channelId !== channelId);
+
+      // If no peers found, widen the range by 2x in both directions
+      if (!peers.length) {
+        const widerMin = Math.floor(min / 2);
+        const widerMax = max * 2;
+        peers = await searchChannels(niche, widerMin, widerMax, 20);
+        peers = peers.filter((p) => p.channelId !== channelId);
+      }
+
       if (peers.length > 0) {
         await setCache(peerCacheKey, "peers", peers);
       }

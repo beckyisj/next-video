@@ -135,42 +135,82 @@ export async function fetchChannelVideos(
   );
 }
 
+// Run a single YouTube channel search query
+async function searchChannelsByQuery(
+  query: string,
+  maxResults = 25
+): Promise<string[]> {
+  const url = `${BASE}/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=${Math.min(maxResults, 25)}&key=${API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!data.items?.length) return [];
+  return data.items
+    .map(
+      (item: Record<string, Record<string, string>>) =>
+        item.snippet?.channelId || item.id?.channelId
+    )
+    .filter(Boolean);
+}
+
 // Search for channels in a niche within a subscriber range
+// Uses multiple search strategies to maximize the pool of candidates
 export async function searchChannels(
   keywords: string[],
   minSubs: number,
   maxSubs: number,
   maxResults = 20
 ): Promise<ChannelInfo[]> {
-  const query = keywords.join(" ");
-  const url = `${BASE}/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=${Math.min(maxResults, 25)}&key=${API_KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
+  const allChannelIds = new Set<string>();
 
-  if (!data.items?.length) return [];
+  // Strategy 1: All keywords combined
+  const combined = await searchChannelsByQuery(keywords.join(" "));
+  combined.forEach((id) => allChannelIds.add(id));
 
-  // Get channel IDs from search results
-  const channelIds = data.items
-    .map(
-      (item: Record<string, Record<string, string>>) =>
-        item.snippet?.channelId || item.id?.channelId
-    )
-    .filter(Boolean);
+  // Strategy 2: Each keyword individually (catches more diverse channels)
+  for (const keyword of keywords.slice(0, 3)) {
+    const ids = await searchChannelsByQuery(keyword + " youtube channel");
+    ids.forEach((id) => allChannelIds.add(id));
+  }
 
-  if (!channelIds.length) return [];
+  // Strategy 3: Pairs of keywords
+  if (keywords.length >= 2) {
+    for (let i = 0; i < Math.min(keywords.length - 1, 2); i++) {
+      const ids = await searchChannelsByQuery(`${keywords[i]} ${keywords[i + 1]}`);
+      ids.forEach((id) => allChannelIds.add(id));
+    }
+  }
 
-  // Fetch full channel details in batch
-  const detailsUrl = `${BASE}/channels?part=snippet,statistics&id=${channelIds.join(",")}&key=${API_KEY}`;
-  const detailsRes = await fetch(detailsUrl);
-  const detailsData = await detailsRes.json();
+  if (!allChannelIds.size) return [];
 
-  const channels = (detailsData.items || []).map(mapChannelItem);
+  // Fetch full channel details in batches of 50
+  const idArray = Array.from(allChannelIds);
+  const allChannels: ChannelInfo[] = [];
 
-  // Filter by subscriber range
-  return channels.filter(
+  for (let i = 0; i < idArray.length; i += 50) {
+    const batch = idArray.slice(i, i + 50);
+    const detailsUrl = `${BASE}/channels?part=snippet,statistics&id=${batch.join(",")}&key=${API_KEY}`;
+    const detailsRes = await fetch(detailsUrl);
+    const detailsData = await detailsRes.json();
+    const channels = (detailsData.items || []).map(mapChannelItem);
+    allChannels.push(...channels);
+  }
+
+  // Filter by subscriber range and minimum videos
+  const filtered = allChannels.filter(
     (ch: ChannelInfo) =>
       ch.subscriberCount >= minSubs &&
       ch.subscriberCount <= maxSubs &&
       ch.videoCount >= 3
   );
+
+  // Deduplicate by channelId and sort by sub count (descending)
+  const seen = new Set<string>();
+  return filtered
+    .filter((ch) => {
+      if (seen.has(ch.channelId)) return false;
+      seen.add(ch.channelId);
+      return true;
+    })
+    .sort((a, b) => b.subscriberCount - a.subscriberCount)
+    .slice(0, maxResults);
 }
