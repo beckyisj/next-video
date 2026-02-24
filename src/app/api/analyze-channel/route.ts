@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Extract niche keywords using AI
     const niche = await extractNiche(channel, videoTitles);
 
-    const result = { channel, niche };
+    const result = { channel, niche, videoTitles };
 
     // Cache for 1 day
     await setCache(cacheKey, "channel", result);

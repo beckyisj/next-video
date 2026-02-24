@@ -140,7 +140,7 @@ async function searchChannelsByQuery(
   query: string,
   maxResults = 25
 ): Promise<string[]> {
-  const url = `${BASE}/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=${Math.min(maxResults, 25)}&key=${API_KEY}`;
+  const url = `${BASE}/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=${Math.min(maxResults, 25)}&relevanceLanguage=en&key=${API_KEY}`;
   const res = await fetch(url);
   const data = await res.json();
   if (!data.items?.length) return [];

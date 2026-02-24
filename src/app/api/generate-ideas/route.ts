@@ -8,7 +8,7 @@ import type { OutlierVideo } from "@/lib/outliers";
 // Step 4: Generate video ideas from outliers
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
-  const { channel, niche, peers, outliers, sessionId } = body || {};
+  const { channel, niche, peers, outliers, videoTitles, sessionId } = body || {};
 
   if (!channel || !niche?.length || !outliers?.length) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const typedChannel = channel as ChannelInfo;
     const typedOutliers = outliers as OutlierVideo[];
 
-    const ideas = await generateIdeas(typedChannel, niche, typedOutliers);
+    const ideas = await generateIdeas(typedChannel, niche, typedOutliers, videoTitles || []);
 
     if (!ideas.length) {
       return NextResponse.json(

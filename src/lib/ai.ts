@@ -59,7 +59,8 @@ export interface VideoIdea {
 export async function generateIdeas(
   channel: ChannelInfo,
   niche: string[],
-  outliers: OutlierVideo[]
+  outliers: OutlierVideo[],
+  videoTitles: string[] = []
 ): Promise<VideoIdea[]> {
   // Give each outlier a numbered index so the AI can reference them reliably
   const topOutliers = outliers.slice(0, 20);
@@ -70,19 +71,23 @@ export async function generateIdeas(
     )
     .join("\n");
 
+  const recentTitlesSection = videoTitles.length > 0
+    ? `\nTheir recent video titles (for context on their style and topics):\n${videoTitles.slice(0, 15).map((t) => `- ${t}`).join("\n")}\n`
+    : "";
+
   const prompt = `You are a YouTube strategist. A creator in the "${niche.join(", ")}" niche wants video ideas based on what's working for channels one step ahead of them.
 
 Their channel: ${channel.title} (${channel.subscriberCount.toLocaleString()} subscribers)
-
+${recentTitlesSection}
 These are outlier videos (videos that got 3x+ their channel's median views) from similar but slightly larger channels. Each has a number in brackets:
 
 ${outlierSummary}
 
 Generate exactly 5 video ideas for this creator. Each idea should:
-1. Be inspired by what's working (the outlier patterns) but adapted for their audience size
+1. Be inspired by what's working (the outlier patterns) but adapted for their audience size and style
 2. Have a compelling, specific title (not generic)
 3. Include a 1-2 sentence insight explaining WHY this topic works and how to approach it
-4. Reference 1-3 evidence videos using their bracket numbers. Each idea MUST reference DIFFERENT videos — spread the evidence across the full list, don't reuse the same ones.
+4. Reference 1-3 evidence videos using their bracket numbers. CRITICAL: each evidence video must be from a DIFFERENT channel — never cite two videos from the same channel in one idea. Spread evidence across the full list.
 
 Return ONLY valid JSON in this exact format:
 [
@@ -93,7 +98,7 @@ Return ONLY valid JSON in this exact format:
   }
 ]
 
-The "evidence" array must contain the bracket numbers (integers) of the outlier videos that inspired each idea. Use different videos for each idea.`;
+The "evidence" array must contain the bracket numbers (integers) of the outlier videos that inspired each idea. Each idea's evidence must come from different channels.`;
 
   const result = await callAI(prompt);
   try {
@@ -105,9 +110,16 @@ The "evidence" array must contain the bracket numbers (integers) of the outlier 
 
     return parsed.slice(0, 5).map(
       (idea: { title: string; insight: string; evidence?: number[] }, ideaIdx: number) => {
-        // Map bracket indices to actual outlier video data
+        // Map bracket indices to actual outlier video data, enforcing channel diversity
+        const seenChannels = new Set<string>();
         const evidence = (idea.evidence || [])
           .filter((idx: number) => typeof idx === "number" && idx >= 0 && idx < topOutliers.length)
+          .filter((idx: number) => {
+            const ch = topOutliers[idx].channelTitle;
+            if (seenChannels.has(ch)) return false;
+            seenChannels.add(ch);
+            return true;
+          })
           .slice(0, 3)
           .map((idx: number) => {
             usedIndices.add(idx);
@@ -122,12 +134,17 @@ The "evidence" array must contain the bracket numbers (integers) of the outlier 
             };
           });
 
-        // Fallback: pick a different unused outlier for each idea
+        // Fallback: pick an unused outlier from a channel not yet in this idea's evidence
         if (evidence.length === 0) {
-          const fallbackIdx = topOutliers.findIndex((_, i) => !usedIndices.has(i));
-          const idx = fallbackIdx >= 0 ? fallbackIdx : ideaIdx % topOutliers.length;
-          usedIndices.add(idx);
-          const v = topOutliers[idx];
+          const fallbackIdx = topOutliers.findIndex(
+            (v, i) => !usedIndices.has(i) && !seenChannels.has(v.channelTitle)
+          );
+          const idx = fallbackIdx >= 0
+            ? fallbackIdx
+            : topOutliers.findIndex((_, i) => !usedIndices.has(i));
+          const finalIdx = idx >= 0 ? idx : ideaIdx % topOutliers.length;
+          usedIndices.add(finalIdx);
+          const v = topOutliers[finalIdx];
           evidence.push({
             videoId: v.videoId,
             title: v.title,

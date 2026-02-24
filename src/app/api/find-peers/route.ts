@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchChannels, fetchChannelVideos } from "@/lib/youtube";
-import { findOutliers } from "@/lib/outliers";
+import { findOutliers, filterVideos } from "@/lib/outliers";
 import { getPeerRange } from "@/lib/peer-range";
 import { getCached, setCache } from "@/lib/cache";
 import { getUserFromToken, countGenerations } from "@/lib/supabase";
@@ -104,7 +104,9 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const outliers = findOutliers(videos, peer.channelId, peer.title);
+      // Filter out Shorts and videos older than 12 months
+      const filtered = filterVideos(videos);
+      const outliers = findOutliers(filtered, peer.channelId, peer.title);
       allOutliers.push(...outliers);
 
       peerDetails.push({

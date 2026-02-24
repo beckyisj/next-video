@@ -133,6 +133,7 @@ export default function Home() {
 
         setChannel(analyzeData.channel);
         setNiche(analyzeData.niche);
+        const videoTitles: string[] = analyzeData.videoTitles || [];
         updateStep(0, "done", analyzeData.channel.title);
 
         // Step 2-3: Find peers + outliers
@@ -181,6 +182,7 @@ export default function Home() {
             niche: analyzeData.niche,
             peers: peersData.peers,
             outliers: peersData.outliers,
+            videoTitles,
             sessionId,
           }),
         });
