@@ -231,7 +231,7 @@ export default function Home() {
   const showProgress = steps.some((s) => s.status !== "pending");
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="bg-stone-50">
       {/* Header */}
       <header className="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-30">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">

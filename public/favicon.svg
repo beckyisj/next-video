@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="32" height="32" rx="7" fill="url(#teal)"/>
-  <!-- Fast-forward icon -->
-  <polygon points="7,8 16,16 7,24" fill="white"/>
-  <polygon points="16,8 25,16 16,24" fill="white"/>
+  <!-- Fast-forward icon, centered -->
+  <polygon points="8,9 16.5,16 8,23" fill="white"/>
+  <polygon points="16.5,9 25,16 16.5,23" fill="white"/>
 </svg>

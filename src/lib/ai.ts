@@ -61,11 +61,12 @@ export async function generateIdeas(
   niche: string[],
   outliers: OutlierVideo[]
 ): Promise<VideoIdea[]> {
-  const outlierSummary = outliers
-    .slice(0, 20)
+  // Give each outlier a numbered index so the AI can reference them reliably
+  const topOutliers = outliers.slice(0, 20);
+  const outlierSummary = topOutliers
     .map(
-      (v) =>
-        `- "${v.title}" by ${v.channelTitle} (${v.viewCount.toLocaleString()} views, ${v.multiplier}x their median)`
+      (v, i) =>
+        `[${i}] "${v.title}" by ${v.channelTitle} (${v.viewCount.toLocaleString()} views, ${v.multiplier}x their median)`
     )
     .join("\n");
 
@@ -73,7 +74,7 @@ export async function generateIdeas(
 
 Their channel: ${channel.title} (${channel.subscriberCount.toLocaleString()} subscribers)
 
-These are outlier videos (videos that got 3x+ their channel's median views) from similar but slightly larger channels:
+These are outlier videos (videos that got 3x+ their channel's median views) from similar but slightly larger channels. Each has a number in brackets:
 
 ${outlierSummary}
 
@@ -81,66 +82,66 @@ Generate exactly 5 video ideas for this creator. Each idea should:
 1. Be inspired by what's working (the outlier patterns) but adapted for their audience size
 2. Have a compelling, specific title (not generic)
 3. Include a 1-2 sentence insight explaining WHY this topic works and how to approach it
-4. Reference 1-3 specific evidence videos from the outlier list
+4. Reference 1-3 evidence videos using their bracket numbers. Each idea MUST reference DIFFERENT videos — spread the evidence across the full list, don't reuse the same ones.
 
 Return ONLY valid JSON in this exact format:
 [
   {
     "title": "Video title idea",
     "insight": "Why this works and how to approach it",
-    "evidenceVideoIds": ["videoId1", "videoId2"]
+    "evidence": [0, 3, 7]
   }
 ]
 
-The evidenceVideoIds should be the YouTube video IDs of the outlier videos that inspired each idea. Use the video titles to identify them — I'll match them to IDs.`;
+The "evidence" array must contain the bracket numbers (integers) of the outlier videos that inspired each idea. Use different videos for each idea.`;
 
   const result = await callAI(prompt);
   try {
     const parsed = JSON.parse(result.replace(/```json?\n?|\n?```/g, "").trim());
     if (!Array.isArray(parsed)) return [];
 
-    // Map evidence video IDs to full video data
+    // Track which outliers have been used as fallback
+    const usedIndices = new Set<number>();
+
     return parsed.slice(0, 5).map(
-      (idea: { title: string; insight: string; evidenceVideoIds?: string[] }) => {
-        // Match evidence videos by title similarity
-        const evidence = (idea.evidenceVideoIds || [])
-          .map((idOrTitle: string) => {
-            // Try exact ID match first
-            let match = outliers.find((v) => v.videoId === idOrTitle);
-            // Try title match
-            if (!match) {
-              match = outliers.find(
-                (v) =>
-                  v.title.toLowerCase().includes(idOrTitle.toLowerCase()) ||
-                  idOrTitle.toLowerCase().includes(v.title.toLowerCase())
-              );
-            }
-            if (!match) return null;
+      (idea: { title: string; insight: string; evidence?: number[] }, ideaIdx: number) => {
+        // Map bracket indices to actual outlier video data
+        const evidence = (idea.evidence || [])
+          .filter((idx: number) => typeof idx === "number" && idx >= 0 && idx < topOutliers.length)
+          .slice(0, 3)
+          .map((idx: number) => {
+            usedIndices.add(idx);
+            const v = topOutliers[idx];
             return {
-              videoId: match.videoId,
-              title: match.title,
-              channelTitle: match.channelTitle,
-              viewCount: match.viewCount,
-              multiplier: match.multiplier,
-              thumbnail: match.thumbnail,
+              videoId: v.videoId,
+              title: v.title,
+              channelTitle: v.channelTitle,
+              viewCount: v.viewCount,
+              multiplier: v.multiplier,
+              thumbnail: v.thumbnail,
             };
-          })
-          .filter(Boolean) as VideoIdea["evidence"];
+          });
+
+        // Fallback: pick a different unused outlier for each idea
+        if (evidence.length === 0) {
+          const fallbackIdx = topOutliers.findIndex((_, i) => !usedIndices.has(i));
+          const idx = fallbackIdx >= 0 ? fallbackIdx : ideaIdx % topOutliers.length;
+          usedIndices.add(idx);
+          const v = topOutliers[idx];
+          evidence.push({
+            videoId: v.videoId,
+            title: v.title,
+            channelTitle: v.channelTitle,
+            viewCount: v.viewCount,
+            multiplier: v.multiplier,
+            thumbnail: v.thumbnail,
+          });
+        }
 
         return {
           title: idea.title,
           insight: idea.insight,
-          evidence:
-            evidence.length > 0
-              ? evidence
-              : outliers.slice(0, 1).map((v) => ({
-                  videoId: v.videoId,
-                  title: v.title,
-                  channelTitle: v.channelTitle,
-                  viewCount: v.viewCount,
-                  multiplier: v.multiplier,
-                  thumbnail: v.thumbnail,
-                })),
+          evidence,
         };
       }
     );

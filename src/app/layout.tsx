@@ -67,12 +67,14 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${manrope.variable} ${geistMono.variable} antialiased`}
+        className={`${manrope.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <AuthProvider>
           <SubscriptionProvider>
+          <div className="flex-1">
           {children}
-          <footer className="py-6 border-t border-foreground/10 mt-6">
+          </div>
+          <footer className="py-6 border-t border-foreground/10">
             <div className="flex flex-col items-center gap-2 text-xs text-foreground/40">
               <p>
                 A{" "}
