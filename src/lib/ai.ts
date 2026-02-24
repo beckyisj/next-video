@@ -75,17 +75,24 @@ export async function generateIdeas(
     ? `\nTheir recent video titles (for context on their style and topics):\n${videoTitles.slice(0, 15).map((t) => `- ${t}`).join("\n")}\n`
     : "";
 
+  const now = new Date();
+  const month = now.getMonth(); // 0-indexed
+  const currentYear = now.getFullYear();
+  const relevantYear = month >= 10 ? currentYear + 1 : currentYear; // Nov-Dec → next year
+
   const prompt = `You are a YouTube strategist. A creator in the "${niche.join(", ")}" niche wants video ideas based on what's working for channels one step ahead of them.
+
+Today's date: ${now.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}. When referencing years in titles or insights, use ${relevantYear} (not past years).
 
 Their channel: ${channel.title} (${channel.subscriberCount.toLocaleString()} subscribers)
 ${recentTitlesSection}
-These are outlier videos (videos that got 3x+ their channel's median views) from similar but slightly larger channels. Each has a number in brackets:
+These are outlier videos from the last 12 months (videos that got 3x+ their channel's median views) from similar but slightly larger channels. Each has a number in brackets:
 
 ${outlierSummary}
 
 Generate exactly 5 video ideas for this creator. Each idea should:
 1. Be inspired by what's working (the outlier patterns) but adapted for their audience size and style
-2. Have a compelling, specific title (not generic)
+2. Have a compelling, specific title (not generic). If referencing a year, use ${relevantYear}.
 3. Include a 1-2 sentence insight explaining WHY this topic works and how to approach it
 4. Reference 1-3 evidence videos using their bracket numbers. CRITICAL: each evidence video must be from a DIFFERENT channel — never cite two videos from the same channel in one idea. Spread evidence across the full list.
 
