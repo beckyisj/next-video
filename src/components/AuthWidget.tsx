@@ -80,12 +80,20 @@ export default function AuthWidget({ onOpenHistory, onOpenFeedback }: AuthWidget
     }
 
     return (
-      <button
-        onClick={() => setShowLogin(true)}
-        className="text-sm text-stone-500 hover:text-stone-700 transition-colors"
-      >
-        Sign in
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onOpenHistory}
+          className="text-sm text-stone-500 hover:text-stone-700 transition-colors"
+        >
+          History
+        </button>
+        <button
+          onClick={() => setShowLogin(true)}
+          className="text-sm text-stone-500 hover:text-stone-700 transition-colors"
+        >
+          Sign in
+        </button>
+      </div>
     );
   }
 
