@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Save generation to history
-    await saveGeneration({
+    const { data: saved } = await saveGeneration({
       userId,
       sessionId,
       channelId: typedChannel.channelId,
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       ideas,
     });
 
-    return NextResponse.json({ ideas });
+    return NextResponse.json({ ideas, generationId: saved?.id || null });
   } catch (e) {
     console.error("generate-ideas error:", e);
     const message = e instanceof Error ? e.message : "Failed to generate ideas";

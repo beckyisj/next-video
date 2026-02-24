@@ -60,18 +60,33 @@ export async function saveGeneration(data: {
   ideas: unknown;
 }) {
   const supabase = getServiceClient();
-  return supabase.from("nextvideo_generations").insert({
-    user_id: data.userId || null,
-    session_id: data.sessionId || null,
-    channel_id: data.channelId,
-    channel_title: data.channelTitle,
-    channel_thumbnail: data.channelThumbnail,
-    channel_subs: data.channelSubs,
-    niche: data.niche,
-    peers: data.peers,
-    outliers: data.outliers,
-    ideas: data.ideas,
-  });
+  const { data: row, error } = await supabase
+    .from("nextvideo_generations")
+    .insert({
+      user_id: data.userId || null,
+      session_id: data.sessionId || null,
+      channel_id: data.channelId,
+      channel_title: data.channelTitle,
+      channel_thumbnail: data.channelThumbnail,
+      channel_subs: data.channelSubs,
+      niche: data.niche,
+      peers: data.peers,
+      outliers: data.outliers,
+      ideas: data.ideas,
+    })
+    .select("id")
+    .single();
+  return { data: row, error };
+}
+
+// Get a single generation by ID (public, no auth)
+export async function getGenerationById(id: string) {
+  const supabase = getServiceClient();
+  return supabase
+    .from("nextvideo_generations")
+    .select("*")
+    .eq("id", id)
+    .single();
 }
 
 // Get generation history

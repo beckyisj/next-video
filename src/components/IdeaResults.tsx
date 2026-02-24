@@ -1,25 +1,62 @@
 "use client";
 
+import { useState } from "react";
 import IdeaCard from "./IdeaCard";
 import type { VideoIdea } from "@/lib/ai";
 
 interface IdeaResultsProps {
   ideas: VideoIdea[];
   channelTitle: string;
+  generationId?: string | null;
 }
 
-export default function IdeaResults({ ideas, channelTitle }: IdeaResultsProps) {
+export default function IdeaResults({ ideas, channelTitle, generationId }: IdeaResultsProps) {
+  const [copied, setCopied] = useState(false);
+
   if (!ideas.length) return null;
+
+  const handleShare = async () => {
+    if (!generationId) return;
+    const url = `https://nextvideo.youtubeproducer.app/share/${generationId}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-semibold text-stone-900 tracking-tight">
-          Video ideas for {channelTitle}
-        </h2>
-        <p className="text-sm text-stone-500 mt-1">
-          Based on outlier videos from channels one step ahead of yours
-        </p>
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold text-stone-900 tracking-tight">
+            Video ideas for {channelTitle}
+          </h2>
+          <p className="text-sm text-stone-500 mt-1">
+            Based on outlier videos from channels one step ahead of yours
+          </p>
+        </div>
+        {generationId && (
+          <button
+            onClick={handleShare}
+            className="flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-teal-700 bg-stone-100 hover:bg-teal-600/[0.08] rounded-lg px-3 py-1.5 transition-colors"
+          >
+            {copied ? (
+              <>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                Share
+              </>
+            )}
+          </button>
+        )}
       </div>
       <div className="flex flex-col gap-3">
         {ideas.map((idea, i) => (

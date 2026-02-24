@@ -47,6 +47,7 @@ export default function Home() {
   const [paywall, setPaywall] = useState<{ count: number; limit: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [generationId, setGenerationId] = useState<string | null>(null);
 
   // UI state
   const [showHistory, setShowHistory] = useState(false);
@@ -95,6 +96,7 @@ export default function Home() {
     setIdeas([]);
     setPaywall(null);
     setError(null);
+    setGenerationId(null);
     setErrorContext(undefined);
     setSteps([
       { label: "Analyzing channel", status: "pending" },
@@ -193,6 +195,7 @@ export default function Home() {
         }
 
         setIdeas(ideasData.ideas);
+        setGenerationId(ideasData.generationId || null);
         updateStep(3, "done", `${ideasData.ideas.length} ideas generated`);
       } catch (e) {
         const message = e instanceof Error ? e.message : "Something went wrong";
@@ -212,6 +215,7 @@ export default function Home() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleHistorySelect = (gen: any) => {
     setShowHistory(false);
+    setGenerationId(gen.id || null);
     setChannel({
       channelId: gen.channel_id as string,
       title: gen.channel_title as string,
@@ -303,7 +307,7 @@ export default function Home() {
           )}
 
           {ideas.length > 0 && channel && (
-            <IdeaResults ideas={ideas} channelTitle={channel.title} />
+            <IdeaResults ideas={ideas} channelTitle={channel.title} generationId={generationId} />
           )}
         </div>
       </main>
