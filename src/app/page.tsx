@@ -237,9 +237,9 @@ export default function Home() {
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-600 to-teal-500 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 6v6l4 2" />
+              <svg className="w-3.5 h-3.5" viewBox="0 0 32 32" fill="white">
+                <polygon points="7,8 16,16 7,24" />
+                <polygon points="16,8 25,16 16,24" />
               </svg>
             </div>
             <span className="font-semibold text-stone-900 text-sm tracking-tight">Next Video</span>
