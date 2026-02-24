@@ -17,9 +17,8 @@
 
   <!-- Logo area (y=320) -->
   <rect x="80" y="340" width="52" height="52" rx="13" fill="url(#teal-grad)"/>
-  <circle cx="106" cy="366" r="14" fill="none" stroke="white" stroke-width="2.5"/>
-  <line x1="106" y1="356" x2="106" y2="366" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="106" y1="366" x2="113" y2="370" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="97,353 111,366 97,379" fill="white"/>
+  <polygon points="111,353 125,366 111,379" fill="white"/>
 
   <text x="148" y="375" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="600" fill="#78716c">YouTube Producer</text>
 
