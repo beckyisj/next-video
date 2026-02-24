@@ -30,8 +30,8 @@ export function filterVideos(videos: VideoData[]): VideoData[] {
   twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
 
   return videos.filter((v) => {
-    // Filter non-long-form (Shorts can be up to 3min, so require > 3min)
-    if (v.duration && parseDuration(v.duration) <= 180) return false;
+    // Filter Shorts by duration (≤ 90s catches most Shorts; title + thumbnail filters catch longer ones)
+    if (v.duration && parseDuration(v.duration) <= 90) return false;
     // Filter Shorts by title
     if (/\#shorts/i.test(v.title)) return false;
     // Filter Shorts by missing thumbnail (Shorts don't get maxres/high thumbs)
