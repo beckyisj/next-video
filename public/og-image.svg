@@ -27,10 +27,10 @@
   <!-- Content centered in y=285..915 (630px crop zone) -->
 
   <!-- Logo icon + text inline -->
-  <rect x="434" y="380" width="52" height="52" rx="13" fill="url(#teal)"/>
-  <polygon points="451,393 464,406 451,419" fill="white"/>
-  <polygon points="464,393 477,406 464,419" fill="white"/>
-  <text x="500" y="418" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="30" font-weight="600" fill="#1c1917" letter-spacing="-0.5">YouTube Producer</text>
+  <rect x="437" y="380" width="52" height="52" rx="11" fill="url(#teal)"/>
+  <polygon points="450,394.5 464,406 450,417.5" fill="white"/>
+  <polygon points="464,394.5 478,406 464,417.5" fill="white"/>
+  <text x="503" y="416" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="30" font-weight="600" fill="#1c1917" letter-spacing="-0.5">YouTube Producer</text>
 
   <!-- Main title -->
   <text x="600" y="530" text-anchor="middle" font-family="-apple-system, Helvetica Neue, sans-serif" font-size="56" font-weight="700" fill="#1c1917" letter-spacing="-2">Next Video</text>
