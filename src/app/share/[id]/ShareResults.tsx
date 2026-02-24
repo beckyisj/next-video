@@ -100,7 +100,7 @@ export default function ShareResults({ data }: ShareResultsProps) {
                 <span className="font-medium text-stone-600">Peer channels</span> — We find YouTube channels in your niche with slightly more subscribers than yours. These are channels &quot;one step ahead&quot; of you.
               </p>
               <p>
-                <span className="font-medium text-stone-600">Outlier videos</span> — For each peer channel, we calculate their median video views. Videos with 3x or more their median are outliers — topics that clearly resonated with their audience.
+                <span className="font-medium text-stone-600">Outlier videos</span> — From the last 12 months of each peer channel, we calculate their median video views. Videos with 3x or more their median are outliers — topics that clearly resonated with their audience.
               </p>
               <p>
                 <span className="font-medium text-stone-600">The multiplier (e.g. 5.2x)</span> — Shows how many times more views that video got compared to the channel&apos;s typical video. Higher = stronger signal that the topic works.
