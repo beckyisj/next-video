@@ -10,9 +10,12 @@ interface PaywallBannerProps {
 }
 
 export default function PaywallBanner({ count, limit }: PaywallBannerProps) {
-  const { user, signInWithMagicLink } = useAuth();
+  const { user, signInWithMagicLink, signUp, signInWithPassword } = useAuth();
   const { startCheckout } = useSubscription();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [mode, setMode] = useState<"magic" | "signin" | "signup">("magic");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,13 +28,30 @@ export default function PaywallBanner({ count, limit }: PaywallBannerProps) {
     setLoading(false);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const result = await signInWithMagicLink(email);
     if (result.error) {
       setError(result.error);
     } else {
+      setSent(true);
+    }
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (mode === "signup") {
+      if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
+      if (password !== confirmPassword) { setError("Passwords don't match"); return; }
+    }
+    const result = mode === "signup"
+      ? await signUp(email, password)
+      : await signInWithPassword(email, password);
+    if (result.error) {
+      setError(result.error);
+    } else if (mode === "signup") {
       setSent(true);
     }
   };
@@ -55,24 +75,73 @@ export default function PaywallBanner({ count, limit }: PaywallBannerProps) {
       {!user ? (
         sent ? (
           <p className="text-sm text-teal-700 mt-4">
-            Check your email for the login link, then upgrade.
+            {mode === "signup"
+              ? "Check your email to confirm your account."
+              : "Check your email for the login link, then upgrade."}
           </p>
         ) : (
-          <form onSubmit={handleLogin} className="mt-4 flex gap-2 max-w-xs mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              className="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm placeholder:text-stone-400 focus:border-teal-600 focus:ring-1 focus:ring-teal-600/20 outline-none"
-            />
-            <button
-              type="submit"
-              className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors whitespace-nowrap"
-            >
-              Sign in
-            </button>
-          </form>
+          <div className="mt-4 max-w-xs mx-auto space-y-2">
+            <form onSubmit={mode === "magic" ? handleMagicLink : handlePasswordSubmit} className="space-y-2">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                className="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm placeholder:text-stone-400 focus:border-teal-600 focus:ring-1 focus:ring-teal-600/20 outline-none"
+              />
+              {mode !== "magic" && (
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm placeholder:text-stone-400 focus:border-teal-600 focus:ring-1 focus:ring-teal-600/20 outline-none"
+                />
+              )}
+              {mode === "signup" && (
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm password"
+                  className="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm placeholder:text-stone-400 focus:border-teal-600 focus:ring-1 focus:ring-teal-600/20 outline-none"
+                />
+              )}
+              <button
+                type="submit"
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors"
+              >
+                {mode === "magic" ? "Send magic link" : mode === "signup" ? "Create account" : "Sign in"}
+              </button>
+            </form>
+            <div className="text-xs text-stone-400 space-y-0.5">
+              {mode === "magic" ? (
+                <button type="button" onClick={() => { setMode("signin"); setError(""); }} className="hover:text-stone-600 transition-colors">
+                  Use password instead
+                </button>
+              ) : (
+                <button type="button" onClick={() => { setMode("magic"); setError(""); setPassword(""); setConfirmPassword(""); }} className="hover:text-stone-600 transition-colors">
+                  Use magic link instead
+                </button>
+              )}
+              {mode === "signin" && (
+                <div>
+                  <span>No account? </span>
+                  <button type="button" onClick={() => { setMode("signup"); setError(""); }} className="text-teal-600 hover:text-teal-700 transition-colors">
+                    Create one
+                  </button>
+                </div>
+              )}
+              {mode === "signup" && (
+                <div>
+                  <span>Have an account? </span>
+                  <button type="button" onClick={() => { setMode("signin"); setError(""); setConfirmPassword(""); }} className="text-teal-600 hover:text-teal-700 transition-colors">
+                    Sign in
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         )
       ) : (
         <button
@@ -80,7 +149,7 @@ export default function PaywallBanner({ count, limit }: PaywallBannerProps) {
           disabled={loading}
           className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-6 py-2.5 text-sm transition-colors disabled:opacity-50"
         >
-          {loading ? "Loading..." : "Upgrade to Pro — $19/mo"}
+          {loading ? "Loading..." : "Upgrade to Pro \u2014 $19/mo"}
         </button>
       )}
 

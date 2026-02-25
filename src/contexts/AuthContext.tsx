@@ -15,6 +15,8 @@ type AuthContextValue = {
   user: User | null;
   isLoading: boolean;
   signInWithMagicLink: (email: string) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string) => Promise<{ error?: string }>;
+  signInWithPassword: (email: string, password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
 };
 
@@ -55,6 +57,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return {};
   }, []);
 
+  const signUp = useCallback(async (email: string, password: string) => {
+    const client = getBrowserClient();
+    if (!client) return { error: "Auth not configured" };
+    const { error } = await client.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined,
+      },
+    });
+    if (error) return { error: error.message };
+    return {};
+  }, []);
+
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    const client = getBrowserClient();
+    if (!client) return { error: "Auth not configured" };
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+    return {};
+  }, []);
+
   const signOut = useCallback(async () => {
     const client = getBrowserClient();
     if (client) await client.auth.signOut();
@@ -65,6 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user: session?.user ?? null,
     isLoading,
     signInWithMagicLink,
+    signUp,
+    signInWithPassword,
     signOut,
   };
 
