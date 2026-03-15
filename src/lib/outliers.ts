@@ -52,7 +52,16 @@ function median(values: number[]): number {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-// Find outlier videos (3x+ median views) from a channel's videos
+// Scale outlier threshold by subscriber count — smaller channels have
+// more consistent views, so a lower multiplier is still meaningful
+export function outlierThreshold(subscriberCount: number): number {
+  if (subscriberCount < 10_000) return 1.5;
+  if (subscriberCount < 50_000) return 2;
+  if (subscriberCount < 200_000) return 2.5;
+  return 3;
+}
+
+// Find outlier videos (Nx+ median views) from a channel's videos
 export function findOutliers(
   videos: VideoData[],
   channelId: string,
