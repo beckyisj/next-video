@@ -130,6 +130,7 @@ export async function fetchChannelVideos(
           thumbnails?.medium?.url ||
           "",
         duration: contentDetails?.duration,
+        hasLongFormThumb: !!(thumbnails?.maxres?.url || thumbnails?.standard?.url),
       };
     }
   );

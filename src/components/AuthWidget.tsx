@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
@@ -105,10 +106,10 @@ export default function AuthWidget({ onOpenHistory, onOpenFeedback }: AuthWidget
           </button>
         </div>
 
-        {showModal && (
+        {showModal && createPortal(
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
-              className="absolute inset-0 bg-stone-900/20 backdrop-blur-sm"
+              className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
               onClick={() => setShowModal(false)}
               aria-hidden
             />
@@ -227,7 +228,8 @@ export default function AuthWidget({ onOpenHistory, onOpenFeedback }: AuthWidget
                 </>
               )}
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </>
     );

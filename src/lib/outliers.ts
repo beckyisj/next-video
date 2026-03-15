@@ -7,6 +7,7 @@ export interface VideoData {
   commentCount?: number;
   thumbnail: string;
   duration?: string;
+  hasLongFormThumb?: boolean; // true if maxres or standard thumbnail exists (Shorts lack these)
 }
 
 export interface OutlierVideo extends VideoData {
@@ -30,11 +31,12 @@ export function filterVideos(videos: VideoData[]): VideoData[] {
   twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
 
   return videos.filter((v) => {
-    // Filter Shorts by duration (≤ 90s catches most Shorts; title + thumbnail filters catch longer ones)
-    if (v.duration && parseDuration(v.duration) <= 90) return false;
+    // Filter Shorts by duration (≤ 180s — YouTube expanded Shorts to 3 minutes in late 2024)
+    if (v.duration && parseDuration(v.duration) <= 180) return false;
     // Filter Shorts by title
     if (/\#shorts/i.test(v.title)) return false;
-    // Filter Shorts by missing thumbnail (Shorts don't get maxres/high thumbs)
+    // Filter Shorts by thumbnail: Shorts don't get maxres/standard thumbnails
+    if (v.hasLongFormThumb === false) return false;
     if (!v.thumbnail) return false;
     // Filter old videos
     if (v.publishedAt && new Date(v.publishedAt) < twelveMonthsAgo) return false;
